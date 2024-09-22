@@ -3,7 +3,7 @@ using Kafkaesier.Client.Attributes;
 
 namespace Kafkaesier.Client.Options;
 
-public class KafkaClientOptions : KafkaDictionaryOptionsBase
+public class KafkaClientOptions : KafkaOptionsDictionaryBase
 {
     public string NamePrefix { get; set; } = string.Empty;
     public int ConsumerBlockingTimeoutInMilliseconds { get; set; } = 300;

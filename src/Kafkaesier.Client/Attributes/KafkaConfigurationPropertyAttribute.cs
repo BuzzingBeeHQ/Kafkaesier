@@ -3,7 +3,7 @@
 namespace Kafkaesier.Client.Attributes;
 
 [AttributeUsage(AttributeTargets.Property)]
-internal class KafkaConfigurationProperty(string name, OptionTargets optionTargets) : Attribute
+internal class KafkaConfigurationPropertyAttribute(string name, OptionTargets optionTargets) : Attribute
 {
     internal string Name { get; set; } = name;
     internal OptionTargets OptionTargets { get; set; } = optionTargets;

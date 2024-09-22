@@ -4,7 +4,7 @@ using Kafkaesier.Client.Options;
 
 namespace Kafkaesier.Client;
 
-public class TopicConfiguration : KafkaDictionaryOptionsBase
+public class TopicConfiguration : KafkaOptionsDictionaryBase
 {
     public int NumPartitions { get; set; } = 5;
     public short ReplicationFactor { get; set; } = 1;

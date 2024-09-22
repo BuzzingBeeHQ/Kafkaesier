@@ -29,18 +29,23 @@ public static class DependencyInjectionExtensions
         where TCommand : CommandBase
         where THandler : CommandHandlerBase<TCommand>
     {
-        return serviceCollection.AddHostedService<KafkaesierConsumer<TCommand, THandler>>();
+        return serviceCollection.AddSingleton<IKafkaesierConsumer, KafkaesierConsumer<TCommand, THandler>>();
     }
 
-    public static IServiceCollection AddConsumerWithOverriddenOptions<TCommand, THandler>(this IServiceCollection serviceCollection, Action<KafkaClientOptions> optionsBuilder)
+    public static IServiceCollection AddConsumerWithOptionsOverride<TCommand, THandler>(this IServiceCollection serviceCollection, Action<KafkaClientOptions> optionsBuilder)
         where TCommand : CommandBase
         where THandler : CommandHandlerBase<TCommand>
     {
-        return serviceCollection.AddHostedService<KafkaesierConsumer<TCommand, THandler>>(serviceProvider =>
+        return serviceCollection.AddSingleton<IKafkaesierConsumer, KafkaesierConsumer<TCommand, THandler>>(serviceProvider =>
         {
             var kafkaOptions = serviceProvider.GetRequiredService<IOptions<KafkaClientOptions>>().Value;
             optionsBuilder(kafkaOptions);
             return new KafkaesierConsumer<TCommand, THandler>(serviceProvider, Options.Create(kafkaOptions));
         });
+    }
+
+    public static IServiceCollection AddProducer<TKey>(this IServiceCollection serviceCollection) where TKey : class
+    {
+        return serviceCollection.AddScoped<IKafkaesierProducer<TKey>, KafkaesierProducer<TKey>>();
     }
 }
