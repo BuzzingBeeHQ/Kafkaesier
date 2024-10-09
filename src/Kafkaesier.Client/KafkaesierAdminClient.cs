@@ -27,8 +27,8 @@ public sealed class KafkaesierAdminClient(IOptions<KafkaClientOptions> options) 
                 lastException = exception;
                 await Task.Delay(_kafkaClientOptions.AdminClientTimeoutInMilliseconds);
             }
-        } while (Stopwatch.GetElapsedTime(timestamp).Milliseconds <= _kafkaClientOptions.TopicCreationTimeoutInMilliseconds);
-
+        }
+        while (Stopwatch.GetElapsedTime(timestamp).Milliseconds <= _kafkaClientOptions.TopicCreationTimeoutInMilliseconds);
         throw lastException;
     }
 
