@@ -20,8 +20,8 @@ public class KafkaesierConsumer<TCommand, THandler>(IServiceProvider serviceProv
 
         await using (var scope = serviceProvider.CreateAsyncScope())
         {
-            var kafkaesierAdminClient = scope.ServiceProvider.GetRequiredService<IKafkaesierAdminClient>();
-            topicName = await kafkaesierAdminClient.CreateTopicOrSkipAsync<TCommand>();
+            var adminClient = scope.ServiceProvider.GetRequiredKeyedService<IKafkaesierAdminClient>(nameof(IKafkaesierConsumer));
+            topicName = await adminClient.CreateTopicOrSkipAsync<TCommand>();
         }
 
         _kafkaConsumer.Subscribe(topicName);
@@ -60,7 +60,7 @@ public class KafkaesierConsumer<TCommand, THandler>(IServiceProvider serviceProv
     private static IConsumer<Ignore, string> CreateConsumer(KafkaClientOptions options)
     {
         var groupId = KafkaesierNameBuilder.CreateConsumerGroupName<THandler>()
-            .WithPrefix(options.NamePrefix)
+            .WithPrefix(options.Prefix)
             .Build();
 
         var optionsDictionary = options.AsDictionary(OptionTargets.Consumer);

@@ -12,18 +12,22 @@ public sealed class KafkaesierProducer<TKey>(IOptions<KafkaClientOptions> option
     private readonly KafkaClientOptions _kafkaClientOptions = options.Value;
     private readonly IProducer<TKey, string> _kafkaProducer = CreateProducer(options.Value);
 
-    public async Task PublishAsync<TCommand>(TCommand data, string? topicName = null, TKey? key = null, Dictionary<string, string>? headers = null)
+    public async Task PublishAsync<TCommand>(TCommand command, string? topicName = null, TKey? key = null, Dictionary<string, string>? headers = null)
     {
         topicName ??= KafkaesierNameBuilder.CreateTopicName<TCommand>()
-            .WithPrefix(_kafkaClientOptions.NamePrefix)
+            .WithPrefix(_kafkaClientOptions.Prefix)
             .Build();
 
-        var payload = data is string ? data.ToString() : JsonSerializer.Serialize(data);
+        var messagePayload = command switch
+        {
+            _ when command is string serialized => serialized,
+            _ => JsonSerializer.Serialize(command)
+        };
         var kafkaMessage = new Message<TKey, string>
         {
             Headers = BuildHeaders(headers),
-            Key = key,
-            Value = payload
+            Key = key!,
+            Value = messagePayload
         };
 
         await _kafkaProducer.ProduceAsync(topicName, kafkaMessage);
@@ -49,7 +53,7 @@ public sealed class KafkaesierProducer<TKey>(IOptions<KafkaClientOptions> option
         {
             foreach (KeyValuePair<string, string> header in headers)
             {
-                kafkaHeaders.Add(new Header(header.Key, Encoding.UTF8.GetBytes(header.Value)));
+                kafkaHeaders.Add(new Header(header.Key, Encoding.Unicode.GetBytes(header.Value)));
             }
         }
 

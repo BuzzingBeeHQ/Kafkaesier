@@ -5,7 +5,7 @@ namespace Kafkaesier.Client.Options;
 
 public class KafkaClientOptions : KafkaOptionsDictionaryBase
 {
-    public string NamePrefix { get; set; } = string.Empty;
+    public string Prefix { get; set; } = string.Empty;
     public int ConsumerBlockingTimeoutInMilliseconds { get; set; } = 300;
     public int ProducerTimeoutInMilliseconds { get; set; } = 1000;
     public int AdminClientTimeoutInMilliseconds { get; set; } = 1000;

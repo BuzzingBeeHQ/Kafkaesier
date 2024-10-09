@@ -14,26 +14,13 @@ public sealed class KafkaesierAdminClient(IOptions<KafkaClientOptions> options) 
 
     public async Task<string> CreateTopicOrSkipAsync<TCommand>() where TCommand : CommandBase
     {
-        var topicName = KafkaesierNameBuilder.CreateTopicName<TCommand>()
-            .WithPrefix(_kafkaClientOptions.NamePrefix)
-            .Build();
-
-        var commandInstance = Activator.CreateInstance<TCommand>();
-        var topicSpecification = BuildTopicSpecification(topicName, commandInstance.GetConfiguration());
-
-        Exception? lastException = null;
         long timestamp = Stopwatch.GetTimestamp();
+        Exception? lastException;
         do
         {
             try
             {
-                if (IsTopicExists(topicSpecification))
-                {
-                    return topicName;
-                }
-
-                TopicSpecification[] topicSpecifications = [topicSpecification];
-                await _kafkaAdminClient.CreateTopicsAsync(topicSpecifications);
+                return await CreateTopicAsync<TCommand>();
             }
             catch (Exception exception)
             {
@@ -42,17 +29,29 @@ public sealed class KafkaesierAdminClient(IOptions<KafkaClientOptions> options) 
             }
         } while (Stopwatch.GetElapsedTime(timestamp).Milliseconds <= _kafkaClientOptions.TopicCreationTimeoutInMilliseconds);
 
-        if (lastException is not null)
-        {
-            throw lastException;
-        }
-
-        return topicName;
+        throw lastException;
     }
 
     public void Dispose()
     {
         _kafkaAdminClient.Dispose();
+    }
+
+    private async Task<string> CreateTopicAsync<TCommand>() where TCommand : CommandBase
+    {
+        var topicName = KafkaesierNameBuilder.CreateTopicName<TCommand>()
+            .WithPrefix(_kafkaClientOptions.Prefix)
+            .Build();
+        var commandInstance = Activator.CreateInstance<TCommand>();
+
+        var topicSpecification = BuildTopicSpecification(topicName, commandInstance.GetConfiguration());
+        if (IsTopicExists(topicSpecification))
+        {
+            return topicName;
+        }
+
+        await _kafkaAdminClient.CreateTopicsAsync([ topicSpecification ]);
+        return topicName;
     }
 
     private bool IsTopicExists(TopicSpecification topicSpecification)
