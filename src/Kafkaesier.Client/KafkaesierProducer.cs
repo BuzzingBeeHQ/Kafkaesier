@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 
 namespace Kafkaesier.Client;
 
-public sealed class KafkaesierProducer<TKey>(IOptions<KafkaClientOptions> options) : IKafkaesierProducer<TKey>, IDisposable where TKey : class
+public class KafkaesierProducer<TKey>(IOptions<KafkaClientOptions> options) : IKafkaesierProducer<TKey>, IDisposable where TKey : class
 {
     private readonly KafkaClientOptions _kafkaClientOptions = options.Value;
     private readonly IProducer<TKey, string> _kafkaProducer = CreateProducer(options.Value);
@@ -18,7 +18,7 @@ public sealed class KafkaesierProducer<TKey>(IOptions<KafkaClientOptions> option
             .WithPrefix(_kafkaClientOptions.Prefix)
             .Build();
 
-        var messagePayload = command switch
+        string messagePayload = command switch
         {
             _ when command is string serialized => serialized,
             _ => JsonSerializer.Serialize(command)
@@ -38,6 +38,8 @@ public sealed class KafkaesierProducer<TKey>(IOptions<KafkaClientOptions> option
         var timeout = TimeSpan.FromMilliseconds(_kafkaClientOptions.ProducerTimeoutInMilliseconds);
         _kafkaProducer.Flush(timeout);
         _kafkaProducer.Dispose();
+
+        GC.SuppressFinalize(this);
     }
 
     private static IProducer<TKey, string> CreateProducer(KafkaClientOptions options)
