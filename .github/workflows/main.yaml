@@ -17,4 +17,4 @@ jobs:
       run: dotnet pack --configuration Release
 
     - name: Publish package
-      run: dotnet nuget push ./nupkgs/*.nupkg --api-key ${{ secrets.NUGET_TOKEN }} --source ${{ secrets.NUGET_SOURCE_URL }} --skip-duplicate
+      run: dotnet nuget push ./src/nupkgs/*.nupkg --api-key ${{ secrets.NUGET_TOKEN }} --source ${{ secrets.NUGET_SOURCE_URL }} --skip-duplicate
