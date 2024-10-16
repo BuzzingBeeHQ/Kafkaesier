@@ -41,9 +41,7 @@ public class KafkaesierConsumer<TCommand, THandler>(IServiceProvider serviceProv
         {
             var consumeResult = _kafkaConsumer.Consume(_kafkaClientOptions.ConsumerBlockingTimeoutInMilliseconds);
 
-            var command = JsonSerializer.Deserialize<TCommand>(consumeResult.Message.Value);
-            ArgumentNullException.ThrowIfNull(command);
-
+            var command = JsonSerializer.Deserialize<TCommand>(consumeResult.Message.Value)!;
             await HandleCommandInScopeAsync(command);
 
             _kafkaConsumer.Commit(consumeResult);

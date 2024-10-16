@@ -14,7 +14,7 @@ public sealed class KafkaesierAdminClient(IOptions<KafkaClientOptions> options) 
 
     public async Task<string> CreateTopicOrSkipAsync<TCommand>() where TCommand : CommandBase
     {
-        long timestamp = Stopwatch.GetTimestamp();
+        Stopwatch stopwatch = Stopwatch.StartNew();
         Exception? lastException;
         do
         {
@@ -28,7 +28,7 @@ public sealed class KafkaesierAdminClient(IOptions<KafkaClientOptions> options) 
                 await Task.Delay(_kafkaClientOptions.AdminClientTimeoutInMilliseconds);
             }
         }
-        while (Stopwatch.GetElapsedTime(timestamp).Milliseconds <= _kafkaClientOptions.TopicCreationTimeoutInMilliseconds);
+        while (stopwatch.ElapsedMilliseconds <= _kafkaClientOptions.TopicCreationTimeoutInMilliseconds);
         throw lastException;
     }
 

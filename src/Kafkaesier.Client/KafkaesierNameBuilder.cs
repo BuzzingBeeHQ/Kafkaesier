@@ -21,7 +21,7 @@ internal class KafkaesierNameBuilder
 
     internal KafkaesierNameBuilder WithPriority(MessagePriority messagePriority)
     {
-        _messagePriority = Enum.GetName(messagePriority);
+        _messagePriority = Enum.GetName(typeof(MessagePriority), messagePriority);
         return this;
     }
 
