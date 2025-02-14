@@ -5,6 +5,7 @@ using Kafkaesier.InMemory.Client.Implementation;
 using Kafkaesier.InMemory.Client.Options;
 using Kafkaesier.Kafka.Client.Options;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Kafkaesier;
 
@@ -36,7 +37,7 @@ public class InMemoryClientBuilder
         where TMessage : MessageBase
         where THandler : CommandHandlerBase<TMessage>
     {
-        _serviceCollection.AddSingleton<IKafkaesierConsumer, InMemoryConsumer<TMessage, THandler>>();
+        _serviceCollection.AddSingleton<IHostedService, InMemoryConsumer<TMessage, THandler>>();
         return this;
     }
 
