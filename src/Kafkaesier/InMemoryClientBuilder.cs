@@ -3,7 +3,6 @@ using Kafkaesier.Abstractions.Handlers;
 using Kafkaesier.Abstractions.Interfaces;
 using Kafkaesier.InMemory.Client.Implementation;
 using Kafkaesier.InMemory.Client.Options;
-using Kafkaesier.Kafka.Client.Implementation;
 using Kafkaesier.Kafka.Client.Options;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -37,19 +36,19 @@ public class InMemoryClientBuilder
         where TMessage : MessageBase
         where THandler : CommandHandlerBase<TMessage>
     {
-        _serviceCollection.AddSingleton<IKafkaesierConsumer, KafkaConsumer<TMessage, THandler>>();
+        _serviceCollection.AddSingleton<IKafkaesierConsumer, InMemoryConsumer<TMessage, THandler>>();
         return this;
     }
 
     public InMemoryClientBuilder AddProducer()
     {
-        _serviceCollection.AddScoped<IKafkaesierProducer, KafkaProducer>();
+        _serviceCollection.AddScoped<IKafkaesierProducer, InMemoryProducer>();
         return this;
     }
 
     public InMemoryClientBuilder AddAdminClient()
     {
-        _serviceCollection.AddScoped<IKafkaesierAdminClient, KafkaAdminClient>();
+        _serviceCollection.AddScoped<IKafkaesierAdminClient, InMemoryAdminClient>();
         return this;
     }
 
