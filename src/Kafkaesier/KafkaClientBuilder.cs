@@ -4,6 +4,7 @@ using Kafkaesier.Abstractions.Interfaces;
 using Kafkaesier.Kafka.Client.Implementation;
 using Kafkaesier.Kafka.Client.Options;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace Kafkaesier;
@@ -36,7 +37,7 @@ public class KafkaClientBuilder
         where TMessage : MessageBase
         where THandler : CommandHandlerBase<TMessage>
     {
-        _serviceCollection.AddSingleton<IKafkaesierConsumer, KafkaConsumer<TMessage, THandler>>();
+        _serviceCollection.AddSingleton<IHostedService, KafkaConsumer<TMessage, THandler>>();
         return KafkaConsumerBuilder<TMessage, THandler>.CreateNew(_serviceCollection, this);
     }
 
@@ -44,7 +45,7 @@ public class KafkaClientBuilder
         where TMessage : MessageBase
         where THandler : CommandHandlerBase<TMessage>
     {
-        _serviceCollection.AddSingleton<IKafkaesierConsumer, KafkaConsumer<TMessage, THandler>>(serviceProvider =>
+        _serviceCollection.AddSingleton<IHostedService, KafkaConsumer<TMessage, THandler>>(serviceProvider =>
         {
             var kafkaOptions = OverrideOptions(serviceProvider, optionsBuilder);
             return new KafkaConsumer<TMessage, THandler>(serviceProvider, kafkaOptions);
