@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <LangVersion>12</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <PackageId>Kafkaesier</PackageId>
+        <Version>1.1.0</Version>
+        <Authors>Kombushi</Authors>
+        <Company>BuzzingBeeHQ</Company>
+        <OutputPath>../packages</OutputPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Kafkaesier.Abstractions\Kafkaesier.Abstractions.csproj" />
+        <ProjectReference Include="..\Kafkaesier.InMemory.Client\Kafkaesier.InMemory.Client.csproj" />
+        <ProjectReference Include="..\Kafkaesier.Kafka.Client\Kafkaesier.Kafka.Client.csproj" />
+    </ItemGroup>
+
+</Project>
