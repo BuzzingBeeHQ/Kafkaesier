@@ -2,9 +2,13 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{3B1568CF-B931-41B7-BF39-010D51A95CFF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kafkaesier.Client", "src\Kafkaesier.Client\Kafkaesier.Client.csproj", "{1AD3A346-D5A6-4BD3-B55E-32ADD262683C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kafkaesier.Kafka.Client", "src\Kafkaesier.Kafka.Client\Kafkaesier.Kafka.Client.csproj", "{1AD3A346-D5A6-4BD3-B55E-32ADD262683C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kafkaesier.Extensions", "src\Kafkaesier.Extensions\Kafkaesier.Extensions.csproj", "{D7095FBE-C0BF-4DB0-BFCF-8B4096A6700B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kafkaesier", "src\Kafkaesier\Kafkaesier.csproj", "{D7095FBE-C0BF-4DB0-BFCF-8B4096A6700B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kafkaesier.Abstractions", "src\Kafkaesier.Abstractions\Kafkaesier.Abstractions.csproj", "{7DD37DFD-3E7D-49F4-8505-6E1B6A19E5EF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kafkaesier.InMemory.Client", "src\Kafkaesier.InMemory.Client\Kafkaesier.InMemory.Client.csproj", "{D03040EF-CD3E-42AE-8276-2F883D5569F0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -14,6 +18,8 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{1AD3A346-D5A6-4BD3-B55E-32ADD262683C} = {3B1568CF-B931-41B7-BF39-010D51A95CFF}
 		{D7095FBE-C0BF-4DB0-BFCF-8B4096A6700B} = {3B1568CF-B931-41B7-BF39-010D51A95CFF}
+		{7DD37DFD-3E7D-49F4-8505-6E1B6A19E5EF} = {3B1568CF-B931-41B7-BF39-010D51A95CFF}
+		{D03040EF-CD3E-42AE-8276-2F883D5569F0} = {3B1568CF-B931-41B7-BF39-010D51A95CFF}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{1AD3A346-D5A6-4BD3-B55E-32ADD262683C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -24,5 +30,13 @@ Global
 		{D7095FBE-C0BF-4DB0-BFCF-8B4096A6700B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D7095FBE-C0BF-4DB0-BFCF-8B4096A6700B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D7095FBE-C0BF-4DB0-BFCF-8B4096A6700B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7DD37DFD-3E7D-49F4-8505-6E1B6A19E5EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7DD37DFD-3E7D-49F4-8505-6E1B6A19E5EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7DD37DFD-3E7D-49F4-8505-6E1B6A19E5EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7DD37DFD-3E7D-49F4-8505-6E1B6A19E5EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D03040EF-CD3E-42AE-8276-2F883D5569F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D03040EF-CD3E-42AE-8276-2F883D5569F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D03040EF-CD3E-42AE-8276-2F883D5569F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D03040EF-CD3E-42AE-8276-2F883D5569F0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
