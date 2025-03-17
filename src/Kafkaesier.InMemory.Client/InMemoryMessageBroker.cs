@@ -11,7 +11,10 @@ internal class InMemoryMessageBroker
 
     private static InMemoryMessageBroker Instance { get; } = new();
 
-    private InMemoryMessageBroker() { }
+    private InMemoryMessageBroker()
+    {
+        
+    }
 
     internal static void CreateChannelOrSkip(string topicName)
     {

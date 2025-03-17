@@ -16,17 +16,20 @@ public class InMemoryConsumer<TMessage, THandler>(IServiceProvider serviceProvid
         .WithPrefix(options.Value.Prefix)
         .Build();
 
-    public async Task StartAsync(CancellationToken cancellationToken)
+    public Task StartAsync(CancellationToken cancellationToken)
     {
         InMemoryMessageBroker.CreateChannelOrSkip(_topicName);
-        await ExecuteAsync(cancellationToken, _topicName);
+
+        _ = Task.Run(async () => await ExecuteAsync(cancellationToken), cancellationToken);
+
+        return Task.CompletedTask;
     }
 
-    private async Task ExecuteAsync(CancellationToken cancellationToken, string topicName)
+    private async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            var consumeResult = await InMemoryMessageBroker.ConsumeAsync<TMessage>(topicName);
+            var consumeResult = await InMemoryMessageBroker.ConsumeAsync<TMessage>(_topicName);
             await HandleMessageInScopeAsync(consumeResult.Message);
         }
     }
