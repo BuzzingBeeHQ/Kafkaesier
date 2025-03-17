@@ -29,7 +29,7 @@ public class KafkaConsumer<TMessage, THandler>(IServiceProvider serviceProvider,
         }
 
         _consumer.Subscribe(topicName);
-        await ExecuteAsync(cancellationToken);
+        _ = Task.Run(async () => await ExecuteAsync(cancellationToken), cancellationToken);
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
