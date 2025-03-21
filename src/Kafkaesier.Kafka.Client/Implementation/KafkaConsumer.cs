@@ -7,11 +7,16 @@ using Kafkaesier.Abstractions.Interfaces;
 using Kafkaesier.Kafka.Client.Constants;
 using Kafkaesier.Kafka.Client.Options;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Kafkaesier.Kafka.Client.Implementation;
 
-public class KafkaConsumer<TMessage, THandler>(IServiceProvider serviceProvider, IOptions<KafkaClientOptions> options) : IKafkaesierConsumer
+public class KafkaConsumer<TMessage, THandler>(
+    IServiceProvider serviceProvider,
+    ILogger<IKafkaesierConsumer> logger,
+    IOptions<KafkaClientOptions> options)
+    : IKafkaesierConsumer
     where TMessage : MessageBase
     where THandler : CommandHandlerBase<TMessage>
 {
@@ -29,7 +34,21 @@ public class KafkaConsumer<TMessage, THandler>(IServiceProvider serviceProvider,
         }
 
         _consumer.Subscribe(topicName);
-        _ = Task.Run(async () => await ExecuteAsync(cancellationToken), cancellationToken);
+
+        _ = Task.Run(async () =>
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                try
+                {
+                    await ExecuteAsync();
+                }
+                catch (Exception exception)
+                {
+                    logger.LogError(exception, "Unhandled exception in Kafka consumer: {ExceptionType}. Details: {Message}", exception.GetType().Name, exception.Message);
+                }
+            }
+        }, cancellationToken);
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
@@ -39,17 +58,14 @@ public class KafkaConsumer<TMessage, THandler>(IServiceProvider serviceProvider,
         return Task.CompletedTask;
     }
 
-    private async Task ExecuteAsync(CancellationToken cancellationToken)
+    private async Task ExecuteAsync()
     {
-        while (!cancellationToken.IsCancellationRequested)
-        {
-            var consumeResult = _consumer.Consume(_options.ConsumerBlockingTimeoutInMilliseconds);
+        var consumeResult = _consumer.Consume(_options.ConsumerBlockingTimeoutInMilliseconds);
 
-            var message = JsonSerializer.Deserialize<TMessage>(consumeResult.Message.Value)!;
-            await HandleMessageInScopeAsync(message);
+        var message = JsonSerializer.Deserialize<TMessage>(consumeResult.Message.Value)!;
+        await HandleMessageInScopeAsync(message);
 
-            _consumer.Commit(consumeResult);
-        }
+        _consumer.Commit(consumeResult);
     }
 
     private async Task HandleMessageInScopeAsync(TMessage message)
