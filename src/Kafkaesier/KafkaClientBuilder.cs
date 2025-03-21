@@ -37,7 +37,13 @@ public class KafkaClientBuilder
         where TMessage : MessageBase
         where THandler : CommandHandlerBase<TMessage>
     {
-        _serviceCollection.AddSingleton<IHostedService, KafkaConsumer<TMessage, THandler>>();
+        _serviceCollection.AddSingleton<IHostedService, KafkaConsumer<TMessage, THandler>>(serviceProvider =>
+        {
+            var logger = serviceProvider.GetLoggerOrDefault<IKafkaesierConsumer>();
+            var options = serviceProvider.GetRequiredService<IOptions<KafkaClientOptions>>();
+            return new KafkaConsumer<TMessage, THandler>(serviceProvider, logger, options);
+        });
+
         return KafkaConsumerBuilder<TMessage, THandler>.CreateNew(_serviceCollection, this);
     }
 
@@ -47,8 +53,9 @@ public class KafkaClientBuilder
     {
         _serviceCollection.AddSingleton<IHostedService, KafkaConsumer<TMessage, THandler>>(serviceProvider =>
         {
-            var kafkaOptions = OverrideOptions(serviceProvider, optionsBuilder);
-            return new KafkaConsumer<TMessage, THandler>(serviceProvider, kafkaOptions);
+            var logger = serviceProvider.GetLoggerOrDefault<IKafkaesierConsumer>();
+            var kafkaOptions = serviceProvider.OverrideOptions(optionsBuilder);
+            return new KafkaConsumer<TMessage, THandler>(serviceProvider, logger, kafkaOptions);
         });
 
         return KafkaConsumerBuilder<TMessage, THandler>.CreateNew(_serviceCollection, this);
@@ -64,8 +71,8 @@ public class KafkaClientBuilder
     {
         _serviceCollection.AddScoped<IKafkaesierProducer, KafkaProducer>(serviceProvider =>
         {
-            var kafkaOptions = OverrideOptions(serviceProvider, optionsBuilder);
-            return new KafkaProducer(kafkaOptions);
+            var options = serviceProvider.OverrideOptions(optionsBuilder);
+            return new KafkaProducer(options);
         });
 
         return this;
@@ -81,8 +88,8 @@ public class KafkaClientBuilder
     {
         _serviceCollection.AddScoped<IKafkaesierAdminClient, KafkaAdminClient>(serviceProvider =>
         {
-            var kafkaOptions = OverrideOptions(serviceProvider, optionsBuilder);
-            return new KafkaAdminClient(serviceProvider, kafkaOptions);
+            var options = serviceProvider.OverrideOptions(optionsBuilder);
+            return new KafkaAdminClient(serviceProvider, options);
         });
 
         return this;
@@ -91,12 +98,5 @@ public class KafkaClientBuilder
     public static KafkaClientBuilder CreateContainer(IServiceCollection serviceCollection, Action<KafkaClientOptions>? optionsBuilder = null)
     {
         return new KafkaClientBuilder(serviceCollection, optionsBuilder);
-    }
-
-    private static IOptions<KafkaClientOptions> OverrideOptions(IServiceProvider serviceProvider, Action<KafkaClientOptions> optionsBuilder)
-    {
-        var kafkaOptions = serviceProvider.GetRequiredService<IOptions<KafkaClientOptions>>().Value;
-        optionsBuilder(kafkaOptions);
-        return Options.Create(kafkaOptions);
     }
 }

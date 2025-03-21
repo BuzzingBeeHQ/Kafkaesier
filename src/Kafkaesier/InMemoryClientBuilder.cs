@@ -6,6 +6,7 @@ using Kafkaesier.InMemory.Client.Options;
 using Kafkaesier.Kafka.Client.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace Kafkaesier;
 
@@ -37,7 +38,13 @@ public class InMemoryClientBuilder
         where TMessage : MessageBase
         where THandler : CommandHandlerBase<TMessage>
     {
-        _serviceCollection.AddSingleton<IHostedService, InMemoryConsumer<TMessage, THandler>>();
+        _serviceCollection.AddSingleton<IHostedService, InMemoryConsumer<TMessage, THandler>>(serviceProvider =>
+        {
+            var logger = serviceProvider.GetLoggerOrDefault<IKafkaesierConsumer>();
+            var options = serviceProvider.GetRequiredService<IOptions<InMemoryClientOptions>>();
+            return new InMemoryConsumer<TMessage, THandler>(serviceProvider, logger, options);
+        });
+
         return this;
     }
 
