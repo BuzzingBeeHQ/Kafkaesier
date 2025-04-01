@@ -1,4 +1,5 @@
-﻿using Kafkaesier.Abstractions;
+﻿using System.Text.Json;
+using Kafkaesier.Abstractions;
 using Kafkaesier.Abstractions.Commands;
 using Kafkaesier.Abstractions.Handlers;
 using Kafkaesier.Abstractions.Interfaces;
@@ -35,7 +36,7 @@ public class InMemoryConsumer<TMessage, THandler>(
                 }
                 catch (Exception exception)
                 {
-                    logger.LogError(exception, "Unhandled error in InMemory consumer: {ExceptionType}. Details: {Message}", exception.GetType().Name, exception.Message);
+                    logger.LogError(exception, $"Unhandled exception of type: {exception.GetType()} in {typeof(InMemoryConsumer<TMessage, THandler>)}. Details: {exception.Message}.");
                 }
             }
         }, cancellationToken);
@@ -45,8 +46,25 @@ public class InMemoryConsumer<TMessage, THandler>(
 
     private async Task ExecuteAsync()
     {
-        var consumeResult = await InMemoryMessageBroker.ConsumeAsync<TMessage>(_topicName);
-        await HandleMessageInScopeAsync(consumeResult.Message);
+        var consumeResult = await InMemoryMessageBroker.ConsumeAsync(_topicName);
+        var command = CreateCommandFromJson<KafkaesierCommand<TMessage>>(consumeResult);
+        await HandleMessageInScopeAsync(command.Message);
+    }
+
+    private T CreateCommandFromJson<T>(string jsonData)
+    {
+        try
+        {
+            var command = JsonSerializer.Deserialize<T>(jsonData) ?? throw new ArgumentException("JSON data was deserialized to null.", nameof(jsonData));
+
+            logger.LogDebug($"Received command of type {typeof(T)} with payload: {jsonData} in {typeof(InMemoryConsumer<TMessage, THandler>)}.");
+            return command;
+        }
+        catch (Exception exception)
+        {
+            logger.LogError(exception, $"Failed to deserialize JSON data with value: {jsonData} to type: {typeof(T)}.");
+            throw;
+        }
     }
 
     private async Task HandleMessageInScopeAsync(TMessage message)
