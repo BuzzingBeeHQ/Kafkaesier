@@ -45,7 +45,7 @@ public class KafkaConsumer<TMessage, THandler>(
                 }
                 catch (Exception exception)
                 {
-                    logger.LogError(exception, "Unhandled exception in Kafka consumer: {ExceptionType}. Details: {Message}", exception.GetType().Name, exception.Message);
+                    logger.LogError(exception, $"Unhandled exception of type: {exception.GetType().Name} in {typeof(KafkaConsumer<TMessage, THandler>)}. Details: {exception.Message}.");
                 }
             }
         }, cancellationToken);
@@ -61,11 +61,26 @@ public class KafkaConsumer<TMessage, THandler>(
     private async Task ExecuteAsync()
     {
         var consumeResult = _consumer.Consume(_options.ConsumerBlockingTimeoutInMilliseconds);
+        var message = CreateMessageFromJson<TMessage>(consumeResult.Message.Value);
 
-        var message = JsonSerializer.Deserialize<TMessage>(consumeResult.Message.Value)!;
         await HandleMessageInScopeAsync(message);
-
         _consumer.Commit(consumeResult);
+    }
+
+    private T CreateMessageFromJson<T>(string jsonData)
+    {
+        try
+        {
+            var message = JsonSerializer.Deserialize<T>(jsonData) ?? throw new ArgumentException("JSON data was deserialized to null.", nameof(jsonData));
+
+            logger.LogDebug($"Received message of type {typeof(T)} with payload: {jsonData} in {typeof(KafkaConsumer<TMessage, THandler>)}.");
+            return message;
+        }
+        catch (Exception exception)
+        {
+            logger.LogError(exception, $"Failed to deserialize JSON data with value: {jsonData} to type: {typeof(T)}.");
+            throw;
+        }
     }
 
     private async Task HandleMessageInScopeAsync(TMessage message)

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Text.Json;
 using System.Threading.Channels;
-using Kafkaesier.Abstractions.Commands;
 
 namespace Kafkaesier.InMemory.Client;
 
@@ -33,7 +32,7 @@ internal class InMemoryMessageBroker
         }
     }
 
-    internal static async Task ProduceAsync<TMessage>(string topicName, KafkaesierCommand<TMessage> command) where TMessage : MessageBase
+    internal static async Task ProduceAsync(string topicName, object command)
     {
         if (Instance.TryGetChannel(topicName, out Channel<string> channel))
         {
@@ -42,15 +41,14 @@ internal class InMemoryMessageBroker
         }
     }
 
-    internal static async Task<KafkaesierCommand<TMessage>> ConsumeAsync<TMessage>(string topicName) where TMessage : MessageBase
+    internal static async Task<string> ConsumeAsync(string topicName)
     {
         if (Instance.TryGetChannel(topicName, out Channel<string> channel))
         {
-            var command = await channel.Reader.ReadAsync();
-            return JsonSerializer.Deserialize<KafkaesierCommand<TMessage>>(command)!;
+            return await channel.Reader.ReadAsync();
         }
 
-        throw new Exception("Channel does not exist.");
+        throw new ArgumentException("Channel does not exist.", nameof(topicName));
     }
 
     private bool HasChannel(string topicName)
